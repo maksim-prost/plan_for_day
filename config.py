@@ -1,15 +1,19 @@
 import datetime
+import os
 import locale
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8') 
+from docxtpl import DocxTemplate
 
-BEGIN_DAY = 1
-BEGIN_MONTH = 9
-BEGIN_YEAR = 2021
+begin_day = 1
+begin_month = 9
+begin_year = 2021
+
+BEGIN_DAY = datetime.datetime( begin_year,begin_month,begin_day)
 
 TEMPLATE_WORKING_OUT = "Повторение обязанностей, работа с документацией, изучение документацией предварительного планирования."
 
 
-list_wath = [
+list_dict_wath = [
     { 
         'post' : "Помощник начальника караула",
         'post_usage' : "помощника начальника 1 караула",
@@ -40,7 +44,37 @@ list_wath = [
     },
     
 ]
-begin_day = datetime.datetime( BEGIN_YEAR,BEGIN_MONTH,BEGIN_DAY )
-for i,wath in enumerate( list_wath ):
-    wath['cur_day'] = begin_day + datetime.timedelta( days=i)
-    # print(wath['cur_day'].strftime('%d %B %Y'))
+
+class Wath():
+    current_month = (BEGIN_DAY + datetime.timedelta( days=15)).strftime('%B')#расписание занятий может начинаться с последних чисел предыдущего месяца
+    
+    def __init__(self, template_wath) -> None:
+        self.post = template_wath['post']
+        self.post_usage = template_wath['post_usage']
+        self.name = template_wath['name']
+        self.title = template_wath['title']
+        self.number = template_wath['number']
+        self.cur_day = BEGIN_DAY + datetime.timedelta( days=self.number-1)
+        self.prev_day = self.cur_day - datetime.timedelta( days=4)
+        self.folder = f"планы работы на сутки {self.number} караула в {self.current_month}"
+        if  not os.path.isdir( self.folder ):
+            os.mkdir( self.folder )
+    
+    def next_day(self):
+        self.prev_day =  self.cur_day
+        self.cur_day = self.cur_day + datetime.timedelta( days=4)
+
+    def view_cur_day(self):
+        return self.cur_day.strftime('%d %B %Y')
+    
+    def view_prev_day(self):
+        return self.prev_day.strftime('%d %B %Y')
+
+    def save_plan_day (self, context):
+        context.update(self.__dict__) 
+        doc = DocxTemplate('план работы на сутки.docx')
+        doc.render(context)
+        doc.save(f"{self.folder}/план работы на {self.view_cur_day()}.docx")
+        
+LIST_WATH = [Wath(temp_wath) for temp_wath in list_dict_wath]
+
