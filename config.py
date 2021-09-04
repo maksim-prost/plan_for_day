@@ -75,6 +75,13 @@ class Wath():
         doc = DocxTemplate('план работы на сутки.docx')
         doc.render(context)
         doc.save(f"{self.folder}/план работы на {self.view_cur_day()}.docx")
+    @classmethod
+    def current_interval(cls):
+        next_month = (BEGIN_DAY + datetime.timedelta(15)).month%12 +1
+        cur_year = begin_year +1 if next_month==1 else  begin_year
+        end_interval = datetime.datetime( cur_year,next_month,1)
+        return (BEGIN_DAY + datetime.timedelta(i) for i in  range((end_interval-BEGIN_DAY).days))
         
 LIST_WATH = [Wath(temp_wath) for temp_wath in list_dict_wath]
+# print(LIST_WATH[0].current_interval())
 
