@@ -4,7 +4,9 @@ from config import  LIST_WATH, TEMPLATE_WORKING_OUT
 def load_data_from_exel_document():
     wb = openpyxl.load_workbook('расписание.xlsx')
     sheet = wb['Расписание занятий']
-    hour_lesson = [(b.value.strip().split('\n'), c.value.split("\n1")[0] + f' ({ e.value.strip()}) проводит {f.value.strip()}') for (_,b,c,_,e,f) in list(sheet.rows)[1:]]
+    n_l = '\n1'
+    hour_lesson = [ (b.value.strip().split('\n'), f'{c.value.split(n_l)[0]} ({ e.value.strip()}) проводит {f.value.strip()}') 
+                                            for (_,b,c,_,e,f) in list(sheet.rows)[1:] ]
     sheet = wb['Отработка ктп и птп']
     working_out_dict = {}
     [ working_out_dict.setdefault( d.value, [] ).append(f'{c.value} {a.value} {b.value}') 
@@ -14,6 +16,7 @@ def load_data_from_exel_document():
 def create_plan_for_day(hour_lesson, working_out_dict ):
     current_day_lesson = []
     lesson_hour_5 =''
+    for wath in LIST_WATH: wath.create_folder()
     for hour,lesson in hour_lesson:
         for h in hour:
             if h == '14.00-15.30':

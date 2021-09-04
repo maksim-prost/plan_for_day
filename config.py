@@ -57,6 +57,8 @@ class Wath():
         self.cur_day = BEGIN_DAY + datetime.timedelta( days=self.number-1)
         self.prev_day = self.cur_day - datetime.timedelta( days=4)
         self.folder = f"планы работы на сутки {self.number} караула в {self.current_month}"
+        
+    def create_folder(self):
         if  not os.path.isdir( self.folder ):
             os.mkdir( self.folder )
     
@@ -83,5 +85,4 @@ class Wath():
         return (BEGIN_DAY + datetime.timedelta(i) for i in  range((end_interval-BEGIN_DAY).days))
         
 LIST_WATH = [Wath(temp_wath) for temp_wath in list_dict_wath]
-# print(LIST_WATH[0].current_interval())
 
